@@ -1,6 +1,6 @@
 import sqlite3
 from . import user
-from typing import List
+from typing import List, Any
 
 # TODO: when we have a couple more errors, put in seperate file
 class UserAssignViolationError(Exception):
@@ -33,13 +33,18 @@ class TicketModel:
     def __init__(self, db_conn: sqlite3.Connection):
         self._db_conn = db_conn
 
-    def open_ticket(self, user: user.User, title: str, description: str, tag: str = None):
-        self._db_conn.execute("""
+    def open_ticket(self, user: user.User, title: str, description: str, tag: str = None) -> int:
+        cursor = self._db_conn.cursor()
+        cursor.execute("""
             INSERT INTO
                 ticket (user_id, ticket_title, ticket_description, ticket_tag)
             VALUES (?, ?, ?, ?)
         """, (user.user_id, title, description, tag))
-        self._db_conn.commit()
+
+        return cursor.lastrowid
+
+    def __convert_ticket_row(self, row: List[Any]) -> Ticket:
+        return Ticket(row[0]. row[1], row[3], row[4], row[7], row[2], row[6], row[5])
 
     def get_ticket(self, ticket_id) -> Ticket:
         cursor = self._db_conn.cursor()
@@ -51,7 +56,7 @@ class TicketModel:
         """, (ticket_id,))
         row = cursor.fetchone()
 
-        return Ticket(row[0]. row[1], row[3], row[4], row[7], row[2], row[6], row[5])
+        return self.__convert_ticket_row(row)
 
     def get_tickets(self, limit: int, offset: int = 0) -> List[Ticket]:
         cursor = self._db_conn.cursor()
@@ -61,8 +66,13 @@ class TicketModel:
             FROM ticket
             LIMIT ? ORDER BY ?
         """, (limit, offset))
-        return cursor.fetchall()
 
+        tickets: List[Ticket] = []
+        rows = cursor.fetchall()
+        for row in rows:
+            tickets.append(self.__convert_ticket_row(row))
+
+        return tickets
 
     def assign_user(self, ticket: Ticket, user: user.User):
         if user.user_id == ticket.user_id:
