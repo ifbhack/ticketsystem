@@ -33,15 +33,18 @@ class TicketModel:
     def __init__(self, db_conn: sqlite3.Connection):
         self._db_conn = db_conn
 
-    def open_ticket(self, user: user.User, title: str, description: str, tag: str = None) -> int:
+    def open_ticket(self, user: user.User, title: str, description: str, tag: str = None) -> Ticket:
         cursor = self._db_conn.cursor()
+
+        # TODO: figure out how to return the 'ticket_created_on' field without creating
+        # another query. For now the returned ticket will have "" for attr 'created_on'.
         cursor.execute("""
             INSERT INTO
-                ticket (user_id, ticket_title, ticket_description, ticket_tag)
-            VALUES (?, ?, ?, ?)
+                ticket (user_id, ticket_title, ticket_description, ticket_tag, is_closed)
+            VALUES (?, ?, ?, ?, 0)
         """, (user.user_id, title, description, tag))
 
-        return cursor.lastrowid
+        return Ticket(cursor.lastrowid, user.user_id, title, description, created_on="", tag=tag)
 
     def __convert_ticket_row(self, row: List[Any]) -> Ticket:
         return Ticket(row[0]. row[1], row[3], row[4], row[7], row[2], row[6], row[5])
