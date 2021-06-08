@@ -25,11 +25,3 @@ class UserModel:
             VALUES(?, ?, ?)
         """, (guild_id, username, is_assignable))
         self._db_conn.commit()
-
-    def create_message(self, user: User, ticket_id: int, message_text: str):
-        self._db_conn.execute("""
-            INSERT INTO
-                message (ticket_id, user_id, message_text)
-            VALUES (?, ?, ?)
-        """, (ticket_id, user.user_id, message_text))
-        self._db_conn.commit()
