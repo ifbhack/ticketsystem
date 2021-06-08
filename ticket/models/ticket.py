@@ -18,6 +18,7 @@ class Ticket:
 
     def __init__(self, ticket_id: int, user_id: int, title: str,
                  description: str, created_on: str,
+                 is_closed: bool,
                  assigned_user = None, tag = None):
         self.ticket_id = ticket_id
         self.user_id = user_id
@@ -25,6 +26,7 @@ class Ticket:
         self.description = description
         self.assigned_user = assigned_user
         self.tag = tag
+        self.is_closed = is_closed
         self.created_on = created_on
 
 class TicketModel:
@@ -44,10 +46,11 @@ class TicketModel:
             VALUES (?, ?, ?, ?, 0)
         """, (user.user_id, title, description, tag))
 
-        return Ticket(cursor.lastrowid, user.user_id, title, description, created_on="", tag=tag)
+        return Ticket(cursor.lastrowid, user.user_id, title, description, created_on="",
+                      is_closed=False, tag=tag)
 
     def __convert_ticket_row(self, row: List[Any]) -> Ticket:
-        return Ticket(int(row[0]), int(row[1]), row[3], row[4], row[7], row[2], row[5])
+        return Ticket(row[0], row[1], row[3], row[4], row[7], row[6], row[2], row[5])
 
     def get_ticket(self, ticket_id) -> Ticket:
         cursor = self._db_conn.cursor()
@@ -116,3 +119,5 @@ class TicketModel:
                 ticket_id = ?
         """, (ticket.ticket_id,))
         self._db_conn.commit()
+
+        ticket.is_closed = True
