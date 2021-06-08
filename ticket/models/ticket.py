@@ -61,14 +61,18 @@ class TicketModel:
 
         return self.__convert_ticket_row(row)
 
-    def get_tickets(self, limit: int, offset: int = 0) -> List[Ticket]:
+    def get_tickets(self, limit: int = 0, offset: int = 0) -> List[Ticket]:
+
+        sqlquery = "SELECT * FROM ticket"
+
+        if limit != 0:
+            sqlquery += " LIMIT " + str(limit)
+
+        if offset != 0:
+            sqlquery += " ORDER BY " + str(limit)
+
         cursor = self._db_conn.cursor()
-        cursor.execute("""
-            SELECT
-                *
-            FROM ticket
-            LIMIT ? ORDER BY ?
-        """, (limit, offset))
+        cursor.execute(sqlquery)
 
         tickets: List[Ticket] = []
         rows = cursor.fetchall()
@@ -87,9 +91,11 @@ class TicketModel:
                 SET assigned_user_id = ?
             WHERE
                 ticket_id = ?
-            LIMIT 1
         """, (user.user_id, ticket.ticket_id))
         self._db_conn.commit()
+
+        ticket.assigned_user = user
+
 
     def add_tag(self, ticket: Ticket, tag: str):
         self._db_conn.execute("""
@@ -97,9 +103,10 @@ class TicketModel:
                 SET ticket_tag = ?
             WHERE
                 ticket_id = ?
-            LIMIT 1
         """, (tag, ticket.ticket_id))
         self._db_conn.commit()
+
+        ticket.tag = tag
 
     def close_ticket(self, ticket: Ticket):
         self._db_conn.execute("""
@@ -107,6 +114,5 @@ class TicketModel:
                 SET is_closed  = 1
             WHERE
                 ticket_id = ?
-            LIMIT 1
         """, (ticket.ticket_id,))
         self._db_conn.commit()
