@@ -1,5 +1,6 @@
 import sqlite3
 from . import user
+from typing import List
 
 # TODO: when we have a couple more errors, put in seperate file
 class UserAssignViolationError(Exception):
@@ -39,6 +40,29 @@ class TicketModel:
             VALUES (?, ?, ?, ?)
         """, (user.user_id, title, description, tag))
         self._db_conn.commit()
+
+    def get_ticket(self, ticket_id) -> Ticket:
+        cursor = self._db_conn.cursor()
+        cursor.execute("""
+            SELECT
+                *
+            FROM ticket
+            WHERE ticket_id = ?
+        """, (ticket_id,))
+        row = cursor.fetchone()
+
+        return Ticket(row[0]. row[1], row[3], row[4], row[7], row[2], row[6], row[5])
+
+    def get_tickets(self, limit: int, offset: int = 0) -> List[Ticket]:
+        cursor = self._db_conn.cursor()
+        cursor.execute("""
+            SELECT
+                *
+            FROM ticket
+            LIMIT ? ORDER BY ?
+        """, (limit, offset))
+        return cursor.fetchall()
+
 
     def assign_user(self, ticket: Ticket, user: user.User):
         if user.user_id == ticket.user_id:
