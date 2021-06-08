@@ -1,3 +1,10 @@
+import sqlite3
+from . import user
+
+# TODO: when we have a couple more errors, put in seperate file
+class UserAssignViolationError(Exception):
+    pass
+
 class Ticket:
     ticket_id = 0
     user_id = 0
@@ -8,7 +15,9 @@ class Ticket:
     assigned_user = None
     created_on = None
 
-    def __init__(self, user_id, ticket_id, title, description, created_on, assigned_user = None, tag = None):
+    def __init__(self, ticket_id: int, user_id: int, title: str,
+                 description: str, created_on: str,
+                 assigned_user = None, tag = None):
         self.ticket_id = ticket_id
         self.user_id = user_id
         self.title = title
@@ -18,25 +27,49 @@ class Ticket:
         self.created_on = created_on
 
 class TicketModel:
-    _db_conn = None
+    _db_conn: sqlite3.Connection
 
-    def __init__(self, db_conn):
+    def __init__(self, db_conn: sqlite3.Connection):
         self._db_conn = db_conn
 
-    def open_ticket(self, user, title, description, tag = None):
-        pass
+    def open_ticket(self, user: user.User, title: str, description: str, tag: str = None):
+        self._db_conn.execute("""
+            INSERT INTO
+                ticket (user_id, ticket_title, ticket_description, ticket_tag)
+            VALUES (?, ?, ?, ?)
+        """, (user.user_id, title, description, tag))
+        self._db_conn.commit()
 
-    def assign_user(self, ticket, user):
+    def assign_user(self, ticket: Ticket, user: user.User):
         if user.user_id == ticket.user_id:
             # log error
-            return None
-        pass
+            raise UserAssignViolationError("cannot assign a ticket to the same ticket owner")
 
-    def add_tag(self, ticket, tag):
-        pass
+        self._db_conn.execute("""
+            UPDATE ticket
+                SET assigned_user_id = ?
+            WHERE
+                ticket_id = ?
+            LIMIT 1
+        """, (user.user_id, ticket.ticket_id))
+        self._db_conn.commit()
 
-    def add_message(self, ticket, message):
-        pass
+    def add_tag(self, ticket: Ticket, tag: str):
+        self._db_conn.execute("""
+            UPDATE ticket
+                SET ticket_tag = ?
+            WHERE
+                ticket_id = ?
+            LIMIT 1
+        """, (tag, ticket.ticket_id))
+        self._db_conn.commit()
 
-    def close_ticket(self, ticket):
-        pass
+    def close_ticket(self, ticket: Ticket):
+        self._db_conn.execute("""
+            UPDATE ticket
+                SET is_closed  = 1
+            WHERE
+                ticket_id = ?
+            LIMIT 1
+        """, (ticket.ticket_id,))
+        self._db_conn.commit()
