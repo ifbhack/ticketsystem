@@ -50,7 +50,7 @@ class TicketModel:
                       is_closed=False, tag=tag)
 
     def __convert_ticket_row(self, row: List[Any]) -> Ticket:
-        return Ticket(row[0], row[1], row[3], row[4], row[7], row[6], row[2], row[5])
+        return Ticket(row[0], row[1], row[3], row[4], row[7], row[6], row[5], row[2])
 
     def get_ticket(self, ticket_id: int) -> Ticket:
         cursor = self._db_conn.cursor()

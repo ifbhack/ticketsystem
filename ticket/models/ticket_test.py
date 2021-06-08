@@ -22,7 +22,7 @@ class TestTicketModel(unittest.TestCase):
         self._ticket_model: ticket.TicketModel = ticket.TicketModel(self._db_conn)
 
     def __open_test_ticket(self) -> ticket.Ticket:
-        return self._ticket_model.open_ticket(self._test_user,
+        return self._ticket_model.open_ticket(self._test_user.user_id,
                                        "Test Ticket",
                                        "This is a test ticket",
                                        "TestTicket")
@@ -54,19 +54,19 @@ class TestTicketModel(unittest.TestCase):
 
     def test_assign_user(self):
         test_user = user.User(2, "12", "james", 1)
-        test_ticket = self._ticket_model.open_ticket(test_user,
+        test_ticket = self._ticket_model.open_ticket(test_user.user_id,
                                        "Test Ticket",
                                        "This is a test ticket",
                                        "TestTicket")
 
-        self._ticket_model.assign_user(test_ticket, self._test_user)
+        self._ticket_model.assign_user(test_ticket, self._test_user.user_id)
 
-        self.assertEqual(test_ticket.assigned_user.user_id, self._test_user.user_id)
+        self.assertEqual(test_ticket.assigned_user_id, self._test_user.user_id)
 
         # query the ticket again just to make sure it was committed to the db
         queried_test_ticket = self._ticket_model.get_ticket(test_ticket.ticket_id)
 
-        self.assertEqual(queried_test_ticket.assigned_user, self._test_user.user_id)
+        self.assertEqual(queried_test_ticket.assigned_user_id, self._test_user.user_id)
 
     def test_add_tag(self):
 
