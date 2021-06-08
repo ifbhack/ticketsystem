@@ -1,5 +1,5 @@
 import sqlite3
-from . import user
+from ticket.models import user
 from typing import List, Any
 
 # TODO: when we have a couple more errors, put in seperate file
