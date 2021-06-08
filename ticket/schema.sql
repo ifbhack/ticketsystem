@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS ticket(
 	ticket_title VARCHAR(50) NOT NULL,
 	ticket_description TEXT NOT NULL,
 	ticket_tag VARCHAR(20),
-	ticket_created_on TEXT,
+	is_closed BOOLEAN NOT NULL CHECK(is_closed IN (0, 1)),
+	ticket_created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY(user_id) REFERENCES user(user_id),
 	FOREIGN KEY(assigned_user_id) REFERENCES user(user_id)
 );
@@ -22,7 +23,7 @@ CREATE TABLE IF NOT EXISTS message(
 	ticket_id INTEGER NOT NULL,
 	user_id INTEGER NOT NULL,
 	message_text TEXT NOT NULL,
-	message_sent_on TEXT NOT NULL,
+	message_sent_on DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY(ticket_id) REFERENCES ticket(ticket_id),
 	FOREIGN KEY(user_id) REFERENCES user(user_id)
 );
