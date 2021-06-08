@@ -47,7 +47,7 @@ class TicketModel:
         return Ticket(cursor.lastrowid, user.user_id, title, description, created_on="", tag=tag)
 
     def __convert_ticket_row(self, row: List[Any]) -> Ticket:
-        return Ticket(row[0]. row[1], row[3], row[4], row[7], row[2], row[6], row[5])
+        return Ticket(int(row[0]), int(row[1]), row[3], row[4], row[7], row[2], row[5])
 
     def get_ticket(self, ticket_id) -> Ticket:
         cursor = self._db_conn.cursor()
