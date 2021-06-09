@@ -19,10 +19,19 @@ class TestMessageModel(unittest.TestCase):
         queried_user = self._user_model.get_user(user.user_id)
         self.assertEqual(user.user_id, queried_user.user_id)
 
+        with self.assertRaises(ValueError):
+            self._user_model.create_user("12345678", "joshturge", True)
+
     def test_get_user(self):
-        user = self.__create_test_user()
-        queried_user = self._user_model.get_user(user.user_id)
-        self.assertEqual(user.user_id, queried_user.user_id)
+        usr = self.__create_test_user()
+        queried_user = self._user_model.get_user(usr.user_id)
+        self.assertEqual(usr.user_id, queried_user.user_id)
+
+        with self.assertRaises(ValueError):
+            self._user_model.get_user(0)
+
+        with self.assertRaises(user.NoUserFoundError):
+            self._user_model.get_user(9438759357394)
 
     @classmethod
     def tearDownClass(cls):
