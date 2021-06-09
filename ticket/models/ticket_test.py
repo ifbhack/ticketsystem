@@ -26,14 +26,40 @@ class TestTicketModel(unittest.TestCase):
                                        "TestTicket")
 
     def test_open_ticket(self):
+        with self.assertRaises(ValueError):
+            self._ticket_model.open_ticket(0,
+                                       "Test Ticket",
+                                       "This is a test ticket",
+                                       "TestTicket")
+
+        with self.assertRaises(ValueError):
+            self._ticket_model.open_ticket(self._test_user.user_id,
+                                       "",
+                                       "This is a test ticket",
+                                       "TestTicket")
+
         ticket = self.__open_test_ticket()
         self.assertNotEqual(ticket.ticket_id, 0)
 
     def test_get_ticket(self):
+
+        with self.assertRaises(ValueError):
+            self._ticket_model.get_ticket(0)
+
+        with self.assertRaises(ticket.TicketNotFoundError):
+            self._ticket_model.get_ticket(39837459375)
+
         test_ticket = self.__open_test_ticket()
-        ticket = self._ticket_model.get_ticket(test_ticket.ticket_id)
-        self.assertNotEqual(ticket.ticket_id, 0)
-        self.assertEqual(ticket.ticket_id, test_ticket.ticket_id)
+        tkt = self._ticket_model.get_ticket(test_ticket.ticket_id)
+        self.assertNotEqual(tkt.ticket_id, 0)
+        self.assertEqual(tkt.ticket_id, test_ticket.ticket_id)
+
+    def __check_ticket_subset(self, test_tickets, tickets):
+        ticket_ids = []
+        for ticket in tickets:
+            ticket_ids.append(ticket.ticket_id)
+
+        self.assertTrue(set(test_tickets).issubset(ticket_ids))
 
     def test_get_tickets(self):
         test_tickets = [
@@ -42,20 +68,28 @@ class TestTicketModel(unittest.TestCase):
                 self.__open_test_ticket().ticket_id,
             ]
 
-        tickets = self._ticket_model.get_tickets()
-
-        ticket_ids = []
-        for ticket in tickets:
-            ticket_ids.append(ticket.ticket_id)
-
-        self.assertTrue(set(test_tickets).issubset(ticket_ids))
+        self.__check_ticket_subset(test_tickets, self._ticket_model.get_tickets())
+        self.__check_ticket_subset(test_tickets, self._ticket_model.get_tickets(limit=10))
+        self.__check_ticket_subset(test_tickets, self._ticket_model.get_tickets(offset=1))
 
     def test_assign_user(self):
         test_user = user.User(2, "12", "james", True)
+
+        invalid_ticket = ticket.Ticket(0, test_user.user_id, "b", "d", "dw", False)
+
+        with self.assertRaises(ValueError):
+            self._ticket_model.assign_user(invalid_ticket, test_user.user_id)
+
         test_ticket = self._ticket_model.open_ticket(test_user.user_id,
                                        "Test Ticket",
                                        "This is a test ticket",
                                        "TestTicket")
+
+        with self.assertRaises(ValueError):
+            self._ticket_model.assign_user(test_ticket, 0)
+
+        with self.assertRaises(ticket.UserAssignViolationError):
+            self._ticket_model.assign_user(test_ticket, test_ticket.ticket_id)
 
         self._ticket_model.assign_user(test_ticket, self._test_user.user_id)
 
@@ -72,6 +106,14 @@ class TestTicketModel(unittest.TestCase):
 
         test_ticket = self.__open_test_ticket()
         self._ticket_model.add_tag(test_ticket, test_tag)
+
+        invalid_ticket = ticket.Ticket(0, 1, "b", "d", "dw", False)
+
+        with self.assertRaises(ValueError):
+            self._ticket_model.add_tag(invalid_ticket, "ert")
+
+        with self.assertRaises(ValueError):
+            self._ticket_model.add_tag(test_ticket, "")
 
         self.assertEqual(test_ticket.tag, test_tag)
 
@@ -90,6 +132,10 @@ class TestTicketModel(unittest.TestCase):
 
         self.assertTrue(queried_test_ticket.is_closed)
 
+        invalid_ticket = ticket.Ticket(0, 1, "b", "d", "dw", False)
+
+        with self.assertRaises(ValueError):
+            self._ticket_model.close_ticket(invalid_ticket)
 
     @classmethod
     def tearDownClass(cls):

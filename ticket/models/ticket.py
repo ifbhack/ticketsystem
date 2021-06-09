@@ -145,6 +145,9 @@ class TicketModel:
         if ticket.ticket_id == 0:
             raise ValueError(f"ticket.ticket_id is invalid: got {ticket.ticket_id}")
 
+        if tag == "":
+            raise ValueError(f"tag is invalid: got empty string")
+
         self._db_conn.execute("""
             UPDATE ticket
                 SET ticket_tag = ?
