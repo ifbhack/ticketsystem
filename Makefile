@@ -8,11 +8,14 @@ venv/bin/activate: requirements.txt
 	python3 -m venv $(VENV)
 	$(PIP) install -r requirements.txt
 
-instance/flaskr.sqlite:
+test: venv/bin/activate
+	$(PY) -m coverage run -m unittest discover -p "*_test.py"
+
+instance/ticket.db: test
 	$(FLASK_VARS) $(FLASK) init-db 
 
-run: venv/bin/activate instance/ticket.db
+run: instance/ticket.db
 	$(FLASK_VARS) $(FLASK) run
 
-test: venv/bin/activate
-	$(PY) -m unittest discover -p "*_test.py"
+coverage: test
+	$(PY) -m coverage report --omit="venv/*,*_test.py" -m

@@ -3,6 +3,7 @@ async-timeout==3.0.1
 attrs==21.2.0
 chardet==4.0.0
 click==8.0.1
+coverage==5.5
 discord.py==1.7.2
 Flask==2.0.1
 idna==3.1
