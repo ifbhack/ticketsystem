@@ -1,6 +1,8 @@
 import sqlite3
 
-class NoUserError(Exception):
+GUILD_ID_LENGTH = 18
+
+class NoUserFoundError(Exception):
     pass
 
 class User:
@@ -30,6 +32,9 @@ class UserModel:
         are assignable to tickets, false by default
         """
 
+        if len(guild_id) != GUILD_ID_LENGTH:
+            raise ValueError(f"guild_id is of invalid length: wanted {GUILD_ID_LENGTH}: got {len(guild_id)}")
+
         cursor = self._db_conn.cursor()
         cursor.execute("""
             INSERT INTO
@@ -42,6 +47,9 @@ class UserModel:
     def get_user(self, user_id: int) -> User:
         """get_user with specified user_id"""
 
+        if user_id == 0:
+            raise ValueError(f"user_id is invalid: got {user_id}")
+
         cursor = self._db_conn.cursor()
         cursor.execute("""
             SELECT * FROM user WHERE user_id = ?
@@ -49,6 +57,6 @@ class UserModel:
 
         row = cursor.fetchone()
         if row == None:
-            raise NoUserError("user not found")
+            raise NoUserFoundError("user not found")
 
         return User(int(row[0]), row[1], row[2], bool(row[3]))

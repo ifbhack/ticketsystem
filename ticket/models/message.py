@@ -1,6 +1,9 @@
 import sqlite3
 from typing import List, Any
 
+class MessageNotFoundError(Exception):
+    pass
+
 class Message:
     """Message contains fields related to a ticket message"""
     message_id: int = 0
@@ -30,6 +33,14 @@ class MessageModel:
     def send_message(self, ticket_id: int, user_id: int, message_text: str) -> Message:
         """send_message to a ticket from a specified user."""
 
+        if ticket_id == 0:
+            raise ValueError(f"ticket_id is invalid: got {ticket_id}")
+        elif user_id == 0:
+            raise ValueError(f"user_id is invalid: got {user_id}")
+
+        if message_text == "":
+            raise ValueError(f"message_text is invalid: got empty string")
+
         cursor = self._db_conn.cursor()
         # TODO: figure out how to return the current timestamp from sqlite
         cursor.execute("""
@@ -46,6 +57,9 @@ class MessageModel:
         this method is exported for unit testing
         """
 
+        if message_id == 0:
+            raise ValueError(f"message_id is invalid: got {message_id}")
+
         cursor = self._db_conn.cursor()
 
         cursor.execute("""
@@ -53,6 +67,8 @@ class MessageModel:
         """, (message_id,))
 
         row = cursor.fetchone()
+        if row == None:
+            raise MessageNotFoundError(f"message with message_id: {message_id} not found")
 
         return self.__convert_row_message(row)
 
@@ -62,6 +78,10 @@ class MessageModel:
         get_ticket_messages from a specified ticket
         optional limit and offset provided, send all messages by default.
         """
+
+        if ticket_id == 0:
+            raise ValueError(f"message_id is invalid: got {ticket_id}")
+
         cursor = self._db_conn.cursor()
 
         sqlquery = "SELECT * FROM message WHERE ticket_id = ?"
@@ -76,6 +96,9 @@ class MessageModel:
 
         messages: List[Message] = []
         rows = cursor.fetchall()
+        if rows == None:
+            raise MessageNotFoundError(f"messages from ticket_id: {ticket_id} not found")
+
         for row in rows:
             messages.append(self.__convert_row_message(row))
 

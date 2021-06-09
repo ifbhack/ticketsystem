@@ -5,6 +5,9 @@ from typing import List, Any
 class UserAssignViolationError(Exception):
     pass
 
+class TicketNotFoundError(Exception):
+    pass
+
 class Ticket:
     ticket_id: int= 0
     user_id: int = 0
@@ -30,12 +33,25 @@ class Ticket:
         self.created_on = created_on
 
 class TicketModel:
+    # TODO: add sqlite error handling and additional checks for things like closed tickets or non-assignable users.
     _db_conn: sqlite3.Connection
 
     def __init__(self, db_conn: sqlite3.Connection):
         self._db_conn = db_conn
 
     def open_ticket(self, user_id: int, title: str, description: str, tag: str = "") -> Ticket:
+        """open_ticket for a specified user. A ticket is open by default and the datetime is
+        automatically set within the database.
+
+        returns a ticket with the given data and ticket id.
+        """
+
+        if user_id == 0:
+            raise ValueError(f"user_id is invalid: got {user_id}")
+        if title == "" or description == "":
+            raise ValueError(f"""title or description is an empty string: title:
+                             ({title}) description: ({description})""")
+
         cursor = self._db_conn.cursor()
 
         # TODO: figure out how to return the 'ticket_created_on' field without creating
@@ -53,6 +69,12 @@ class TicketModel:
         return Ticket(row[0], row[1], row[3], row[4], row[7], row[6], row[5], row[2])
 
     def get_ticket(self, ticket_id: int) -> Ticket:
+        """get_ticket with a given ticket_id. If no ticket is found, a TicketNotFoundError
+        exception will be raised"""
+
+        if ticket_id == 0:
+            raise ValueError(f"ticket_id is invalid: got {ticket_id}")
+
         cursor = self._db_conn.cursor()
         cursor.execute("""
             SELECT
@@ -60,11 +82,19 @@ class TicketModel:
             FROM ticket
             WHERE ticket_id = ?
         """, (ticket_id,))
+
         row = cursor.fetchone()
+        if row == None:
+            raise TicketNotFoundError(f"ticket with ticket_id: {ticket_id} not found")
 
         return self.__convert_ticket_row(row)
 
+    # NOTE: up for modification to get tickets per user
     def get_tickets(self, limit: int = 0, offset: int = 0) -> List[Ticket]:
+        """get_tickets from the database, can set the limit and offset. All tickets returned by default
+
+        returns an iterable list of tickets or a TicketNotFoundError when no tickets are found.
+        """
 
         sqlquery = "SELECT * FROM ticket"
 
@@ -79,16 +109,27 @@ class TicketModel:
 
         tickets: List[Ticket] = []
         rows = cursor.fetchall()
+
+        if len(rows) == 0:
+            raise TicketNotFoundError("no tickets were found")
+
         for row in rows:
             tickets.append(self.__convert_ticket_row(row))
 
         return tickets
 
     def assign_user(self, ticket: Ticket, user_id: int):
+        """assign_user to a specified ticket"""
+
+        if ticket.ticket_id == 0:
+            raise ValueError(f"ticket.ticket_id is invalid: got {ticket.ticket_id}")
+        elif user_id == 0:
+            raise ValueError(f"user_id is invalid: got {user_id}")
+
         if user_id == ticket.user_id:
-            # log error
             raise UserAssignViolationError("cannot assign a ticket to the same ticket owner")
 
+        # TODO: raise an exception when the user is not assignable to tickets
         self._db_conn.execute("""
             UPDATE ticket
                 SET assigned_user_id = ?
@@ -99,8 +140,11 @@ class TicketModel:
 
         ticket.assigned_user_id = user_id
 
-
     def add_tag(self, ticket: Ticket, tag: str):
+        """add_tag or replace tag for a given ticket"""
+        if ticket.ticket_id == 0:
+            raise ValueError(f"ticket.ticket_id is invalid: got {ticket.ticket_id}")
+
         self._db_conn.execute("""
             UPDATE ticket
                 SET ticket_tag = ?
@@ -112,6 +156,10 @@ class TicketModel:
         ticket.tag = tag
 
     def close_ticket(self, ticket: Ticket):
+        """close_ticket given a valid ticket to close"""
+        if ticket.ticket_id == 0:
+            raise ValueError(f"ticket.ticket_id is invalid: got {ticket.ticket_id}")
+
         self._db_conn.execute("""
             UPDATE ticket
                 SET is_closed  = 1
