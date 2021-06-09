@@ -5,6 +5,18 @@ from flask.cli import with_appcontext
 
 SCHEMA_FILENAME = "schema.sql"
 
+def get_test_database() -> sqlite3.Connection:
+    """get_test_database for unit testing the model classes"""
+    db_conn = sqlite3.connect(
+            ":memory:",
+            detect_types=sqlite3.PARSE_DECLTYPES
+    )
+
+    with open("ticket/schema.sql") as schema_file:
+        db_conn.executescript(schema_file.read())
+
+    return db_conn
+
 def get_database() -> sqlite3.Connection:
     """get_database connection and load it into the flask application"""
 

@@ -2,15 +2,11 @@ import unittest
 from ticket import db
 from ticket.models import message
 
-
-# creates an in memory sqlite database for testing methods
-db_filename: str = ":memory:"
-
 class TestMessageModel(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._db_conn = db.create_database(db_filename)
+        cls._db_conn = db.get_test_database()
 
     def setUp(self):
         self._message_model: message.MessageModel = message.MessageModel(self._db_conn)

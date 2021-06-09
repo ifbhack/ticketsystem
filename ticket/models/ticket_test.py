@@ -2,15 +2,13 @@ import unittest
 from ticket import db
 from ticket.models import ticket, user
 
-# creates an in memory sqlite database for testing methods
-db_filename: str = ":memory:"
-
 class TestTicketModel(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._test_user: user.User = user.User(1, "123456789012345678", "joshturge", 1)
-        cls._db_conn = db.create_database(db_filename)
+        cls._test_user: user.User = user.User(1, "123456789012345678", "joshturge", True)
+        cls._db_conn = db.get_test_database()
+
         cls._db_conn.execute("""
             INSERT INTO
                 user (guild_id, user_name, is_assignable)
@@ -53,7 +51,7 @@ class TestTicketModel(unittest.TestCase):
         self.assertTrue(set(test_tickets).issubset(ticket_ids))
 
     def test_assign_user(self):
-        test_user = user.User(2, "12", "james", 1)
+        test_user = user.User(2, "12", "james", True)
         test_ticket = self._ticket_model.open_ticket(test_user.user_id,
                                        "Test Ticket",
                                        "This is a test ticket",
