@@ -96,7 +96,7 @@ class MessageModel:
 
         messages: List[Message] = []
         rows = cursor.fetchall()
-        if rows == None:
+        if len(rows) == 0:
             raise MessageNotFoundError(f"messages from ticket_id: {ticket_id} not found")
 
         for row in rows:
