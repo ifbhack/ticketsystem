@@ -72,6 +72,21 @@ class TestTicketModel(unittest.TestCase):
         self.__check_ticket_subset(test_tickets, self._ticket_model.get_tickets(limit=10))
         self.__check_ticket_subset(test_tickets, self._ticket_model.get_tickets(offset=1))
 
+    def test_get_tickets_by_user(self):
+        test_tickets = [
+                self.__open_test_ticket().ticket_id,
+                self.__open_test_ticket().ticket_id,
+                self.__open_test_ticket().ticket_id,
+            ]
+
+        self.__check_ticket_subset(test_tickets, self._ticket_model.get_tickets_by_user(self._test_user.user_id))
+
+        with self.assertRaises(ValueError):
+            self._ticket_model.get_tickets_by_user(0)
+
+        with self.assertRaises(ticket.TicketNotFoundError):
+            self._ticket_model.get_tickets_by_user(372947932)
+
     def test_assign_user(self):
         test_user = user.User(2, "12", "james", True)
 
