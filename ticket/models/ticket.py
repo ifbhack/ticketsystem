@@ -1,5 +1,5 @@
 import sqlite3
-from typing import List, Any
+from typing import List, Iterable, Any
 
 # TODO: when we have a couple more errors, put in seperate file
 class UserAssignViolationError(Exception):
@@ -89,15 +89,12 @@ class TicketModel:
 
         return self.__convert_ticket_row(row)
 
-    # NOTE: up for modification to get tickets per user
-    def get_tickets(self, limit: int = 0, offset: int = 0) -> List[Ticket]:
-        """get_tickets from the database, can set the limit and offset. All tickets returned by default
+    def __get_tickets(self, sqlquery: str, parameters: Iterable[Any], limit: int = 0, offset: int = 0) -> List[Ticket]:
+        """get_tickets from the database, given an sqlquery. Sets the limit and offset automatically.
+        All tickets returned by default with no offset
 
         returns an iterable list of tickets or a TicketNotFoundError when no tickets are found.
         """
-
-        sqlquery = "SELECT * FROM ticket"
-
         if limit != 0:
             sqlquery += " LIMIT " + str(limit)
 
@@ -105,7 +102,7 @@ class TicketModel:
             sqlquery += " ORDER BY " + str(offset)
 
         cursor = self._db_conn.cursor()
-        cursor.execute(sqlquery)
+        cursor.execute(sqlquery,parameters)
 
         tickets: List[Ticket] = []
         rows = cursor.fetchall()
@@ -117,6 +114,27 @@ class TicketModel:
             tickets.append(self.__convert_ticket_row(row))
 
         return tickets
+
+    def get_tickets(self, limit: int = 0, offset: int = 0) -> List[Ticket]:
+        """get_tickets from the database
+        All tickets returned by default with no offset
+
+        returns an iterable list of tickets or a TicketNotFoundError when no tickets are found.
+        """
+
+        return self.__get_tickets("SELECT * FROM ticket", (), limit, offset)
+
+    def get_tickets_by_user(self, user_id: int, limit: int = 0, offset: int = 0) -> List[Ticket]:
+        """get_tickets_by_user from the database given a user_id. 
+        All tickets returned by default with no offset
+
+        returns an iterable list of tickets or a TicketNotFoundError when no tickets are found.
+        """
+
+        if user_id == 0:
+            raise ValueError(f"invalid user_id: got {user_id}")
+
+        return self.__get_tickets("SELECT * FROM ticket WHERE user_id = ?", (user_id,), limit, offset)
 
     def assign_user(self, ticket: Ticket, user_id: int):
         """assign_user to a specified ticket"""
