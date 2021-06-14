@@ -123,6 +123,7 @@ class TicketModel:
         cursor.execute(sqlquery, parameters)
 
         tickets: List[Ticket] = []
+
         rows = cursor.fetchall()
 
         if len(rows) == 0:
@@ -142,6 +143,7 @@ class TicketModel:
 
         return self.__get_tickets("SELECT * FROM ticket", (), limit, offset)
 
+    # TODO: change to get tickets via username instead of user_id
     def get_tickets_by_user(self, user_id: int, limit: int = 0, offset: int = 0) -> List[Ticket]:
         """get_tickets_by_user from the database given a user_id.
         All tickets returned by default with no offset
@@ -154,6 +156,39 @@ class TicketModel:
 
         return self.__get_tickets("SELECT * FROM ticket WHERE user_id = ?",
                                   (user_id,), limit, offset)
+
+    def get_tickets_by_title(self, title: str, limit: int = 0, offset: int = 0) -> List[Ticket]:
+        """get_tickets_by_title from the database given a title. Text is matched via a pattern
+        and does not need to be exact.
+        All tickets returned by default with no offset
+
+        returns an iterable list of tickets or a TicketNotFoundError when no tickets are found.
+        """
+
+        return self.__get_tickets("SELECT * FROM ticket WHERE ticket_title LIKE ?",
+                                  ('%'+title+'%',), limit, offset)
+
+    def get_tickets_by_tag(self, tag: str, limit: int = 0, offset: int = 0) -> List[Ticket]:
+        """get_tickets_by_tag from the database given a tag. Text is matched via a pattern
+        and does not need to be exact.
+        All tickets returned by default with no offset
+
+        returns an iterable list of tickets or a TicketNotFoundError when no tickets are found.
+        """
+
+        return self.__get_tickets("SELECT * FROM ticket WHERE ticket_tag LIKE ?",
+                                  ('%'+tag+'%',), limit, offset)
+
+    def get_tickets_by_status(self, is_closed: bool,
+                              limit: int = 0, offset: int = 0) -> List[Ticket]:
+        """get_tickets_by_status from the database given a status.
+        All tickets returned by default with no offset
+
+        returns an iterable list of tickets or a TicketNotFoundError when no tickets are found.
+        """
+
+        return self.__get_tickets("SELECT * FROM ticket WHERE is_closed = ?",
+                                  (is_closed,), limit, offset)
 
     def assign_user(self, ticket: Ticket, user: User):
         """assign_user to a specified ticket"""
