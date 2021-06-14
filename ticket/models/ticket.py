@@ -34,7 +34,7 @@ class Ticket:
         self.created_on = created_on
 
 class TicketModel:
-    # TODO: add sqlite error handling and additional checks for things like closed tickets or non-assignable users.
+    # TODO: add sqlite error handling 
     _db_conn: sqlite3.Connection
 
     def __init__(self, db_conn: sqlite3.Connection):
@@ -105,12 +105,14 @@ class TicketModel:
 
         return self.__convert_ticket_row(row)
 
-    def __get_tickets(self, sqlquery: str, parameters: Iterable[Any], limit: int = 0, offset: int = 0) -> List[Ticket]:
+    def __get_tickets(self, sqlquery: str, parameters: Iterable[Any],
+                      limit: int = 0, offset: int = 0) -> List[Ticket]:
         """get_tickets from the database, given an sqlquery. Sets the limit and offset automatically.
         All tickets returned by default with no offset
 
         returns an iterable list of tickets or a TicketNotFoundError when no tickets are found.
         """
+
         if limit != 0:
             sqlquery += " LIMIT " + str(limit)
 
@@ -141,7 +143,7 @@ class TicketModel:
         return self.__get_tickets("SELECT * FROM ticket", (), limit, offset)
 
     def get_tickets_by_user(self, user_id: int, limit: int = 0, offset: int = 0) -> List[Ticket]:
-        """get_tickets_by_user from the database given a user_id. 
+        """get_tickets_by_user from the database given a user_id.
         All tickets returned by default with no offset
 
         returns an iterable list of tickets or a TicketNotFoundError when no tickets are found.
@@ -150,7 +152,8 @@ class TicketModel:
         if user_id == 0:
             raise ValueError(f"invalid user_id: got {user_id}")
 
-        return self.__get_tickets("SELECT * FROM ticket WHERE user_id = ?", (user_id,), limit, offset)
+        return self.__get_tickets("SELECT * FROM ticket WHERE user_id = ?",
+                                  (user_id,), limit, offset)
 
     def assign_user(self, ticket: Ticket, user: User):
         """assign_user to a specified ticket"""
@@ -165,7 +168,6 @@ class TicketModel:
         elif not user.is_assignable:
             raise UserAssignViolationError("cannot assign a ticket to a non-assignable user")
 
-        # TODO: raise an exception when the user is not assignable to tickets
         self._db_conn.execute("""
             UPDATE ticket
                 SET assigned_user_id = ?
@@ -179,6 +181,7 @@ class TicketModel:
 
     def add_tag(self, ticket: Ticket, tag: str):
         """add_tag or replace tag for a given ticket"""
+
         if ticket.ticket_id == 0:
             raise ValueError(f"ticket.ticket_id is invalid: got {ticket.ticket_id}")
 
@@ -197,6 +200,7 @@ class TicketModel:
 
     def close_ticket(self, ticket: Ticket):
         """close_ticket given a valid ticket to close"""
+
         if ticket.ticket_id == 0:
             raise ValueError(f"ticket.ticket_id is invalid: got {ticket.ticket_id}")
 
