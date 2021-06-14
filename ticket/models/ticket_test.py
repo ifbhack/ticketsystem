@@ -94,20 +94,27 @@ class TestTicketModel(unittest.TestCase):
         invalid_ticket = ticket.Ticket(0, test_user.user_id, "b", "d", "dw", False)
 
         with self.assertRaises(ValueError):
-            self._ticket_model.assign_user(invalid_ticket, test_user.user_id)
+            self._ticket_model.assign_user(invalid_ticket, test_user)
 
         test_ticket = self._ticket_model.open_ticket(test_user.user_id,
                                        "Test Ticket",
                                        "This is a test ticket",
                                        "TestTicket")
 
+        invalid_user = user.User(0, "123456789012345678", "b", False)
+
         with self.assertRaises(ValueError):
-            self._ticket_model.assign_user(test_ticket, 0)
+            self._ticket_model.assign_user(test_ticket, invalid_user)
 
         with self.assertRaises(ticket.UserAssignViolationError):
-            self._ticket_model.assign_user(test_ticket, test_ticket.ticket_id)
+            self._ticket_model.assign_user(test_ticket, test_user)
 
-        self._ticket_model.assign_user(test_ticket, self._test_user.user_id)
+        with self.assertRaises(ticket.UserAssignViolationError):
+            invalid_user.user_id = 1
+            self._ticket_model.assign_user(test_ticket, invalid_user)
+
+
+        self._ticket_model.assign_user(test_ticket, self._test_user)
 
         self.assertEqual(test_ticket.assigned_user_id, self._test_user.user_id)
 

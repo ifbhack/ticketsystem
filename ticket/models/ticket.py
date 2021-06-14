@@ -1,5 +1,6 @@
 import sqlite3
 from typing import List, Iterable, Any
+from ticket.models.user import User
 
 # TODO: when we have a couple more errors, put in seperate file
 class UserAssignViolationError(Exception):
@@ -151,16 +152,18 @@ class TicketModel:
 
         return self.__get_tickets("SELECT * FROM ticket WHERE user_id = ?", (user_id,), limit, offset)
 
-    def assign_user(self, ticket: Ticket, user_id: int):
+    def assign_user(self, ticket: Ticket, user: User):
         """assign_user to a specified ticket"""
 
         if ticket.ticket_id == 0:
             raise ValueError(f"ticket.ticket_id is invalid: got {ticket.ticket_id}")
-        elif user_id == 0:
-            raise ValueError(f"user_id is invalid: got {user_id}")
+        elif user.user_id == 0:
+            raise ValueError(f"user_id is invalid: got {user.user_id}")
 
-        if user_id == ticket.user_id:
+        if user.user_id == ticket.user_id:
             raise UserAssignViolationError("cannot assign a ticket to the same ticket owner")
+        elif not user.is_assignable:
+            raise UserAssignViolationError("cannot assign a ticket to a non-assignable user")
 
         # TODO: raise an exception when the user is not assignable to tickets
         self._db_conn.execute("""
@@ -168,10 +171,11 @@ class TicketModel:
                 SET assigned_user_id = ?
             WHERE
                 ticket_id = ?
-        """, (user_id, ticket.ticket_id))
+        """, (user.user_id, ticket.ticket_id))
+
         self._db_conn.commit()
 
-        ticket.assigned_user_id = user_id
+        ticket.assigned_user_id = user.user_id
 
     def add_tag(self, ticket: Ticket, tag: str):
         """add_tag or replace tag for a given ticket"""
