@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Open Ticket{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<h2>Open a ticket</h2>
+<form method="POST">
+    <label for="title">Title</label>
+    <input name="title" id="title" required>
+    <label for="description">Description</label>
+    <input name="description" id="description" required>
+    <label for="tag">Tag</label>
+    <input name="tag" id="tag" >
+    <input type="submit" value="Open">
+</form>
+{% endblock %}

@@ -1,0 +1,21 @@
+<!doctype html>
+<title>{% block title %}{% endblock %} - Ticket System</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<nav>
+  <h1>Ticket System</h1>
+    {% if g.db %}
+      <li><a href="{{ url_for('ticket.view') }}">View Tickets</a>
+      <li><a href="{{ url_for('ticket.open') }}">Open Ticket</a>
+    {% endif %}
+  </ul>
+</nav>
+<section class="content">
+  <header>
+    {% block header %}{% endblock %}
+  </header>
+  {% block content %}{% endblock %}
+  <h1>Recent Updates</h1>
+  {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+  {% endfor %}
+</section>
