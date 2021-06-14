@@ -54,8 +54,11 @@ class TicketModel:
 
         cursor = self._db_conn.cursor()
 
-        # TODO: figure out how to return the 'ticket_created_on' field without creating
-        # another query. For now the returned ticket will have "" for attr 'created_on'.
+        # NOTE(joshturge): Since I'm running sqlite 3.34.* I don't have access to the
+        # RETURNING functionality, and will need to make a seperate query to the database.
+        #
+        # TODO: in the future utilise RETURNING (https://www.sqlite.org/lang_returning.html)
+        # to return the creation date of the ticket.
         cursor.execute("""
             INSERT INTO
                 ticket (user_id, ticket_title, ticket_description, ticket_tag, is_closed)
@@ -64,7 +67,17 @@ class TicketModel:
 
         self._db_conn.commit()
 
-        return Ticket(cursor.lastrowid, user_id, title, description, created_on="",
+        # get the ticket_created_on datetime
+        cursor.execute("""
+            SELECT
+                ticket_created_on
+            FROM ticket
+            WHERE ticket_id = ?
+        """, (cursor.lastrowid,))
+
+        created_on = cursor.fetchone()
+
+        return Ticket(cursor.lastrowid, user_id, title, description, created_on=created_on,
                       is_closed=False, tag=tag)
 
     def __convert_ticket_row(self, row: List[Any]) -> Ticket:
@@ -104,7 +117,7 @@ class TicketModel:
             sqlquery += " ORDER BY " + str(offset)
 
         cursor = self._db_conn.cursor()
-        cursor.execute(sqlquery,parameters)
+        cursor.execute(sqlquery, parameters)
 
         tickets: List[Ticket] = []
         rows = cursor.fetchall()

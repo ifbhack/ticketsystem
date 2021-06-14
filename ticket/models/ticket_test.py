@@ -40,6 +40,7 @@ class TestTicketModel(unittest.TestCase):
 
         ticket = self.__open_test_ticket()
         self.assertNotEqual(ticket.ticket_id, 0)
+        self.assertNotEqual(ticket.created_on, "")
 
     def test_get_ticket(self):
 
