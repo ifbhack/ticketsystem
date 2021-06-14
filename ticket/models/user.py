@@ -42,6 +42,8 @@ class UserModel:
             VALUES(?, ?, ?)
         """, (guild_id, username, is_assignable))
 
+        self._db_conn.commit()
+
         return User(cursor.lastrowid, guild_id, username, is_assignable)
 
     def get_user(self, user_id: int) -> User:

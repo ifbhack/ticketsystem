@@ -62,6 +62,8 @@ class TicketModel:
             VALUES (?, ?, ?, ?, 0)
         """, (user_id, title, description, tag))
 
+        self._db_conn.commit()
+
         return Ticket(cursor.lastrowid, user_id, title, description, created_on="",
                       is_closed=False, tag=tag)
 

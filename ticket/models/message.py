@@ -49,6 +49,8 @@ class MessageModel:
             VALUES (?, ?, ?)
         """, (ticket_id, user_id, message_text))
 
+        self._db_conn.commit()
+
         return Message(cursor.lastrowid, ticket_id, user_id, message_text)
 
     def get_message(self, message_id: int) -> Message:
