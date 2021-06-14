@@ -4,6 +4,8 @@ PIP = ./venv/bin/pip
 FLASK = ./venv/bin/flask
 FLASK_VARS = FLASK_APP=ticket FLASK_ENV=development
 
+.PHONY: test run coverage todo
+
 venv/bin/activate: requirements.txt
 	python3 -m venv $(VENV)
 	$(PIP) install -r requirements.txt
@@ -19,3 +21,6 @@ run: instance/ticket.db
 
 coverage: test
 	$(PY) -m coverage report --omit="venv/*,*_test.py" -m
+
+todo:
+	find ticket/ -name "*.py" -exec sh -c 'grep "TODO:*" {} | sed "s/^.*# //" ' \;
