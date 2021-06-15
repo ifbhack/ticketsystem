@@ -190,35 +190,28 @@ class TicketModel:
         return self.__get_tickets("SELECT * FROM ticket WHERE is_closed = ?",
                                   (is_closed,), limit, offset)
 
-    def assign_user(self, ticket: Ticket, user: User):
+    def assign_user(self, ticket_id: int, user_id: int):
         """assign_user to a specified ticket"""
 
-        if ticket.ticket_id == 0:
-            raise ValueError(f"ticket.ticket_id is invalid: got {ticket.ticket_id}")
-        elif user.user_id == 0:
-            raise ValueError(f"user_id is invalid: got {user.user_id}")
-
-        if user.user_id == ticket.user_id:
-            raise UserAssignViolationError("cannot assign a ticket to the same ticket owner")
-        elif not user.is_assignable:
-            raise UserAssignViolationError("cannot assign a ticket to a non-assignable user")
+        if ticket_id == 0:
+            raise ValueError(f"ticket.ticket_id is invalid: got {ticket_id}")
+        elif user_id == 0:
+            raise ValueError(f"user_id is invalid: got {user_id}")
 
         self._db_conn.execute("""
             UPDATE ticket
                 SET assigned_user_id = ?
             WHERE
                 ticket_id = ?
-        """, (user.user_id, ticket.ticket_id))
+        """, (user_id, ticket_id))
 
         self._db_conn.commit()
 
-        ticket.assigned_user_id = user.user_id
-
-    def add_tag(self, ticket: Ticket, tag: str):
+    def add_tag(self, ticket_id: int, tag: str):
         """add_tag or replace tag for a given ticket"""
 
-        if ticket.ticket_id == 0:
-            raise ValueError(f"ticket.ticket_id is invalid: got {ticket.ticket_id}")
+        if ticket_id == 0:
+            raise ValueError(f"ticket.ticket_id is invalid: got {ticket_id}")
 
         if tag == "":
             raise ValueError(f"tag is invalid: got empty string")
@@ -228,10 +221,8 @@ class TicketModel:
                 SET ticket_tag = ?
             WHERE
                 ticket_id = ?
-        """, (tag, ticket.ticket_id))
+        """, (tag, ticket_id))
         self._db_conn.commit()
-
-        ticket.tag = tag
 
     def close_ticket(self, ticket_id: int):
         """close_ticket given a valid ticket to close"""

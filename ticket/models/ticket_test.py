@@ -127,7 +127,7 @@ class TestTicketModel(unittest.TestCase):
         invalid_ticket = ticket.Ticket(0, test_user.user_id, "b", "d", "dw", False)
 
         with self.assertRaises(ValueError):
-            self._ticket_model.assign_user(invalid_ticket, test_user)
+            self._ticket_model.assign_user(invalid_ticket.ticket_id, test_user.user_id)
 
         test_ticket = self._ticket_model.open_ticket(test_user.user_id,
                                        "Test Ticket",
@@ -137,19 +137,9 @@ class TestTicketModel(unittest.TestCase):
         invalid_user = user.User(0, "123456789012345678", "b", False)
 
         with self.assertRaises(ValueError):
-            self._ticket_model.assign_user(test_ticket, invalid_user)
+            self._ticket_model.assign_user(test_ticket.ticket_id, invalid_user.user_id)
 
-        with self.assertRaises(ticket.UserAssignViolationError):
-            self._ticket_model.assign_user(test_ticket, test_user)
-
-        with self.assertRaises(ticket.UserAssignViolationError):
-            invalid_user.user_id = 1
-            self._ticket_model.assign_user(test_ticket, invalid_user)
-
-
-        self._ticket_model.assign_user(test_ticket, self._test_user)
-
-        self.assertEqual(test_ticket.assigned_user_id, self._test_user.user_id)
+        self._ticket_model.assign_user(test_ticket.ticket_id, self._test_user.user_id)
 
         # query the ticket again just to make sure it was committed to the db
         queried_test_ticket = self._ticket_model.get_ticket(test_ticket.ticket_id)
@@ -161,17 +151,19 @@ class TestTicketModel(unittest.TestCase):
         test_tag = "thisTag"
 
         test_ticket = self.__open_test_ticket()
-        self._ticket_model.add_tag(test_ticket, test_tag)
+        self._ticket_model.add_tag(test_ticket.ticket_id, test_tag)
 
         invalid_ticket = ticket.Ticket(0, 1, "b", "d", "dw", False)
 
         with self.assertRaises(ValueError):
-            self._ticket_model.add_tag(invalid_ticket, "ert")
+            self._ticket_model.add_tag(invalid_ticket.ticket_id, "ert")
 
         with self.assertRaises(ValueError):
-            self._ticket_model.add_tag(test_ticket, "")
+            self._ticket_model.add_tag(test_ticket.ticket_id, "")
 
-        self.assertEqual(test_ticket.tag, test_tag)
+        queried_test_ticket = self._ticket_model.get_ticket(test_ticket.ticket_id)
+
+        self.assertEqual(queried_test_ticket.tag, test_tag)
 
         # query the ticket again just to make sure it was committed to the db
         queried_test_ticket = self._ticket_model.get_ticket(test_ticket.ticket_id)
