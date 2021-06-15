@@ -9,16 +9,16 @@ class Message:
     message_id: int = 0
     ticket_id: int = 0
     user_id: int = 0
-    message_text: str = ""
-    message_sent_on: str = ""
+    text: str = ""
+    sent_on: str = ""
 
     def __init__(self, message_id: int, ticket_id: int, user_id: int,
-                 message_text: str, message_sent_on: str):
+                 text: str, sent_on: str):
         self.message_id = message_id
         self.ticket_id = ticket_id
         self.user_id = user_id
-        self.message_text = message_text
-        self.message_sent_on = message_sent_on
+        self.text = text
+        self.sent_on = sent_on
 
 class MessageModel:
     """MessageModel allows a caller to send and get messages for a ticket"""
