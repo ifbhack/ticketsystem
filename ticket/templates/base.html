@@ -4,7 +4,7 @@
 <nav>
   <h1>Ticket System</h1>
     {% if g.db %}
-      <li><a href="{{ url_for('ticket.view') }}">View Tickets</a>
+      <li><a href="{{ url_for('ticket.discover') }}">Discover Tickets</a>
       <li><a href="{{ url_for('ticket.open') }}">Open Ticket</a>
     {% endif %}
   </ul>

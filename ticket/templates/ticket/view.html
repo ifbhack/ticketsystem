@@ -1,30 +1,23 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}View Tickets{% endblock %}</h1>
+  <h1>{% block title %}View Ticket{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-<h2>Tickets</h2>
-<table style="width:100%">
-  <tr>
-    <th>Id</th>
-    <th>Title</th>
-    <th>Description</th>
-    <th>Tag</th>
-  </tr>
-  {% for ticket in tickets %}
-    <tr>
-      <th>{{ ticket.ticket_id }}</th>
-      <th>{{ ticket.title }}</th>
-      <th>{{ ticket.description }}</th>
+<h2>{{ ticket.title }}</h2>
+<p>Created by User {{ ticket.user_id }} on {{ ticket.created_on }}</p>
+<p>Tag: {{ ticket.tag }}</p>
+{% if not ticket.is_closed %}
+  <p>Ticket has not been resolved</p>
+{% else %}
+  <p>Ticket has been resolved</p>
+{% endif %}
+<p>{{ ticket.description }}</p>
 
-      {% if ticket.tag %}
-        <th>{{ ticket.tag }}</th>
-      {% else %}
-        <th>-</th>
-      {% endif %}
-    </tr>
-  {% endfor %}
-</table>
+<form method="POST" action="{{ url_for("ticket.close", ticket_id=ticket.ticket_id) }}">
+  <input type="submit" name="Close Ticket" value="Close Ticket">
+</form>
+<!--Messages will go here -->
+
 {% endblock %}

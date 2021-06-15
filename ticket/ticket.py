@@ -28,15 +28,32 @@ def open():
 
         flash(f"Created ticket with ticket id: {ticket.ticket_id}")
 
-        # TODO: change to the index page
-        return redirect(url_for("ticket.view"))
+        return redirect(url_for("ticket.view", ticket_id=ticket.ticket_id))
 
     return render_template("ticket/open.html")
 
-@bp.route("/view", methods=("GET",))
-def view():
-    """ view all of the tickets ever created """
+@bp.route("/discover", methods=("GET",))
+def discover():
+    """ discover all of the tickets ever created """
 
     # TODO: add filter options
     tickets = g.ticket_model.get_tickets()
-    return render_template("ticket/view.html", tickets=tickets)
+    return render_template("ticket/discover.html", tickets=tickets)
+
+@bp.route("/<int:ticket_id>", methods=("GET",))
+def view(ticket_id: int):
+    """ view a single ticket """
+
+    ticket = g.ticket_model.get_ticket(ticket_id)
+
+    return render_template("ticket/view.html", ticket=ticket)
+
+@bp.route("/close/<int:ticket_id>", methods=("POST",))
+def close(ticket_id: int):
+    """ close a ticket """
+
+    g.ticket_model.close_ticket(ticket_id)
+
+    flash(f"Closed ticket with ticket id: {ticket_id}")
+
+    return redirect(url_for("ticket.view", ticket_id=ticket_id))
