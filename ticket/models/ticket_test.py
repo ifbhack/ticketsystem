@@ -180,9 +180,7 @@ class TestTicketModel(unittest.TestCase):
 
     def test_close_ticket(self):
         test_ticket = self.__open_test_ticket()
-        self._ticket_model.close_ticket(test_ticket)
-
-        self.assertTrue(test_ticket.is_closed)
+        self._ticket_model.close_ticket(test_ticket.ticket_id)
 
         queried_test_ticket = self._ticket_model.get_ticket(test_ticket.ticket_id)
 
@@ -191,7 +189,7 @@ class TestTicketModel(unittest.TestCase):
         invalid_ticket = ticket.Ticket(0, 1, "b", "d", "dw", False)
 
         with self.assertRaises(ValueError):
-            self._ticket_model.close_ticket(invalid_ticket)
+            self._ticket_model.close_ticket(invalid_ticket.ticket_id)
 
     @classmethod
     def tearDownClass(cls):

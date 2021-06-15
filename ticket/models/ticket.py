@@ -233,18 +233,16 @@ class TicketModel:
 
         ticket.tag = tag
 
-    def close_ticket(self, ticket: Ticket):
+    def close_ticket(self, ticket_id: int):
         """close_ticket given a valid ticket to close"""
 
-        if ticket.ticket_id == 0:
-            raise ValueError(f"ticket.ticket_id is invalid: got {ticket.ticket_id}")
+        if ticket_id == 0:
+            raise ValueError(f"ticket.ticket_id is invalid: got {ticket_id}")
 
         self._db_conn.execute("""
             UPDATE ticket
                 SET is_closed  = 1
             WHERE
                 ticket_id = ?
-        """, (ticket.ticket_id,))
+        """, (ticket_id,))
         self._db_conn.commit()
-
-        ticket.is_closed = True
