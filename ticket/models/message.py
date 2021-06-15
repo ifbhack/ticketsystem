@@ -13,7 +13,7 @@ class Message:
     message_sent_on: str = ""
 
     def __init__(self, message_id: int, ticket_id: int, user_id: int,
-                 message_text: str, message_sent_on: str = ""):
+                 message_text: str, message_sent_on: str):
         self.message_id = message_id
         self.ticket_id = ticket_id
         self.user_id = user_id
@@ -42,7 +42,6 @@ class MessageModel:
             raise ValueError(f"message_text is invalid: got empty string")
 
         cursor = self._db_conn.cursor()
-        # TODO: figure out how to return the current timestamp from sqlite
         cursor.execute("""
             INSERT INTO
                 message (ticket_id, user_id, message_text)
@@ -51,7 +50,17 @@ class MessageModel:
 
         self._db_conn.commit()
 
-        return Message(cursor.lastrowid, ticket_id, user_id, message_text)
+        # NOTE: see comment on 'open_ticket'
+        cursor.execute("""
+            SELECT
+                message_sent_on
+            FROM message
+            WHERE message_id = ?
+        """, (cursor.lastrowid,))
+
+        sent_on = cursor.fetchone()
+
+        return Message(cursor.lastrowid, ticket_id, user_id, message_text, sent_on)
 
     def get_message(self, message_id: int) -> Message:
         """

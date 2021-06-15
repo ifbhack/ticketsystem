@@ -28,6 +28,7 @@ class TestMessageModel(unittest.TestCase):
 
         message = self._message_model.get_message(test_message.message_id)
         self.assertEqual(message.message_text, self._test_message)
+        self.assertNotEqual(message.message_sent_on, "")
 
     def test_get_message(self):
         self.__send_test_message()
