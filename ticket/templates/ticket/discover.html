@@ -18,13 +18,7 @@
       <th>{{ ticket.ticket_id }}</th>
       <th><a href="{{ url_for("ticket.view", ticket_id=ticket.ticket_id) }}">{{ ticket.title }}</a></th>
       <th>{{ ticket.description }}</th>
-
-      {% if ticket.tag %}
-        <th>{{ ticket.tag }}</th>
-      {% else %}
-        <th>-</th>
-      {% endif %}
-
+      <th>{{ ticket.tag }}</th>
     </tr>
   {% endfor %}
 </table>

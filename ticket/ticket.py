@@ -20,7 +20,10 @@ def open():
         user_id = 1
         title = request.form["title"]
         description = request.form["description"]
+
         tag = request.form["tag"]
+        if tag == "":
+            tag = "Issue"
 
         # TODO: check valid user
 
