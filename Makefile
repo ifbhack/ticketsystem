@@ -11,7 +11,7 @@ venv/bin/activate: requirements.txt
 	$(PIP) install -r requirements.txt
 
 test: venv/bin/activate
-	$(PY) -m coverage run -m unittest discover -p "*_test.py"
+	$(PY) -m coverage run -m unittest discover -p "*_test.py" -s "tests/"
 
 instance/ticket.db: test
 	$(FLASK_VARS) $(FLASK) init-db 
