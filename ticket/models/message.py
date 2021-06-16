@@ -108,7 +108,7 @@ class MessageModel:
         messages: List[Message] = []
         rows = cursor.fetchall()
         if len(rows) == 0:
-            raise MessageNotFoundError(f"messages from ticket_id: {ticket_id} not found")
+            return messages
 
         for row in rows:
             messages.append(self.__convert_row_message(row))

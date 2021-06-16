@@ -60,9 +60,6 @@ class TestMessageModel(unittest.TestCase):
         with self.assertRaises(ValueError):
             self._message_model.get_ticket_messages(0)
 
-        with self.assertRaises(message.MessageNotFoundError):
-            self._message_model.get_ticket_messages(24324325)
-
         self.__check_messages_subset(test_messages,
                                      self._message_model.get_ticket_messages(1, 4))
 
