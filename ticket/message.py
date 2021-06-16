@@ -1,7 +1,8 @@
 from flask import Blueprint, request, redirect, url_for, flash, g
 
 from ticket.db import get_database
-from ticket.models.message import MessageModel
+from ticket.models import MessageModel
+from ticket.models import TicketModel
 
 bp = Blueprint("message", __name__, url_prefix="/message")
 
@@ -21,6 +22,14 @@ def send(ticket_id: int):
         message_text = request.form["message_text"]
 
         # TODO: check valid user
+
+        db_conn = get_database()
+        g.ticket_model = TicketModel(db_conn)
+        ticket = g.ticket_model.get_ticket(ticket_id)
+
+        if ticket.is_closed:
+            # TODO: display error template 
+            return redirect(url_for("ticket.discover"))
 
         g.message_model.send_message(ticket_id, user_id, message_text)
 

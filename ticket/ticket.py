@@ -50,7 +50,6 @@ def view(ticket_id: int):
 
     ticket = g.ticket_model.get_ticket(ticket_id)
 
-    # TODO: move db_conn into request context
     db_conn = get_database()
     g.message_model = MessageModel(db_conn)
 
