@@ -15,6 +15,9 @@ def create_app(test_config=None):
     from . import ticket
     app.register_blueprint(ticket.bp)
 
+    from . import message
+    app.register_blueprint(message.bp)
+
     if test_config is None:
         app.config.from_pyfile('config.py', silent=True)
     else:

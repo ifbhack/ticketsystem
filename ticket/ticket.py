@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 
 from ticket.db import get_database
 from ticket.models import TicketModel
+from ticket.models import MessageModel
 
 bp = Blueprint("ticket", __name__, url_prefix="/ticket")
 
@@ -49,7 +50,13 @@ def view(ticket_id: int):
 
     ticket = g.ticket_model.get_ticket(ticket_id)
 
-    return render_template("ticket/view.html", ticket=ticket)
+    # TODO: move db_conn into request context
+    db_conn = get_database()
+    g.message_model = MessageModel(db_conn)
+
+    messages = g.message_model.get_ticket_messages(ticket_id)
+
+    return render_template("ticket/view.html", ticket=ticket, messages=messages)
 
 @bp.route("/close/<int:ticket_id>", methods=("POST",))
 def close(ticket_id: int):

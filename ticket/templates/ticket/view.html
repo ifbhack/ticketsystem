@@ -18,6 +18,20 @@
 <form method="POST" action="{{ url_for("ticket.close", ticket_id=ticket.ticket_id) }}">
   <input type="submit" name="Close Ticket" value="Close Ticket">
 </form>
-<!--Messages will go here -->
+
+<h2>Messages</h2>
+{% for message in messages %}
+  <div id="message_{{ message.message_id }}" class="message">
+    <h4>User {{ message.user_id }} send on {{ message.sent_on }}</h4>
+    <p>{{ message.text }}</p>
+  </div>
+{% endfor %}
+
+<h2>Send Message</h2>
+<form method="POST" action="{{ url_for("message.send", ticket_id=ticket.ticket_id) }}">
+  <label for="message_text">Message Text</label>
+  <input type="text" id="message_text" name="message_text">
+  <input type="submit" name="Send Message" value="Send Message">
+</form>
 
 {% endblock %}
