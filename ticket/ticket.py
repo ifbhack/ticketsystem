@@ -1,17 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, g
 
-from ticket.db import get_database
-from ticket.models import TicketModel
-from ticket.models import MessageModel
-
 bp = Blueprint("ticket", __name__, url_prefix="/ticket")
-
-@bp.before_app_request
-def create_ticket_model():
-    """create_ticket_model and store it in a flask request context """
-
-    db_conn = get_database()
-    g.ticket_model = TicketModel(db_conn)
 
 @bp.route("/open", methods=("GET", "POST"))
 def open():
@@ -49,9 +38,6 @@ def view(ticket_id: int):
     """ view a single ticket """
 
     ticket = g.ticket_model.get_ticket(ticket_id)
-
-    db_conn = get_database()
-    g.message_model = MessageModel(db_conn)
 
     messages = g.message_model.get_ticket_messages(ticket_id)
 

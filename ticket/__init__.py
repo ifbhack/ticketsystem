@@ -1,5 +1,6 @@
 import os
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, g
+from ticket.models import TicketModel, MessageModel
 
 def create_app(test_config=None):
     """create and configure the ticket system"""
@@ -27,6 +28,12 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    @app.before_request
+    def create_models():
+        db_conn = db.get_database()
+        g.ticket_model = TicketModel(db_conn)
+        g.message_model = MessageModel(db_conn)
 
     @app.route("/")
     def index():
