@@ -15,9 +15,11 @@
 {% endif %}
 <p>{{ ticket.description }}</p>
 
+{% if not ticket.is_closed %}
 <form method="POST" action="{{ url_for("ticket.close", ticket_id=ticket.ticket_id) }}">
   <input type="submit" name="Close Ticket" value="Close Ticket">
 </form>
+{% endif %}
 
 <h2>Messages</h2>
 {% for message in messages %}
@@ -27,11 +29,15 @@
   </div>
 {% endfor %}
 
-<h2>Send Message</h2>
-<form method="POST" action="{{ url_for("message.send", ticket_id=ticket.ticket_id) }}">
-  <label for="message_text">Message Text</label>
-  <input type="text" id="message_text" name="message_text">
-  <input type="submit" name="Send Message" value="Send Message">
-</form>
+{% if not ticket.is_closed %}
+  <h2>Send Message</h2>
+  <form method="POST" action="{{ url_for("message.send", ticket_id=ticket.ticket_id) }}">
+    <label for="message_text">Message Text</label>
+    <input type="text" id="message_text" name="message_text">
+    <input type="submit" name="Send Message" value="Send Message">
+  </form>
+{% else %}
+  <h2>This ticket is closed and cannot accept anymore messages.</h2>
+{% endif %}
 
 {% endblock %}
