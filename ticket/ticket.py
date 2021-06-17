@@ -25,12 +25,30 @@ def open():
 
     return render_template("ticket/open.html")
 
-@bp.route("/discover", methods=("GET",))
+@bp.route("/discover", methods=("GET", "POST"))
 def discover():
     """ discover all of the tickets ever created """
 
-    # TODO: add filter options
+    tickets = []
+
+    if request.method == "POST":
+        filter = request.form["filters"]
+        query = request.form["query"]
+
+        if filter == "by_title":
+            tickets = g.ticket_model.get_tickets_by_title(query)
+        elif filter == "by_tag":
+            tickets = g.ticket_model.get_tickets_by_tag(query)
+        elif filter == "by_username":
+            tickets = g.ticket_model.get_tickets_by_username(query)
+        elif filter == "by_status":
+            tickets = g.ticket_model.get_tickets_by_status(query)
+
+        return render_template("ticket/discover.html", tickets=tickets)
+
+
     tickets = g.ticket_model.get_tickets()
+
     return render_template("ticket/discover.html", tickets=tickets)
 
 @bp.route("/<int:ticket_id>", methods=("GET",))

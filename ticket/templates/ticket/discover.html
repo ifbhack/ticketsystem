@@ -6,6 +6,17 @@
 
 {% block content %}
 <h2>Tickets</h2>
+<h3>Search</h3>
+<form method="POST">
+  <select name="filters" id="filters">
+    <option value="by_title" selected>By Title</option>
+    <option value="by_tag">By Tag</option>
+    <option value="by_username">By Username</option>
+    <option value="by_status">By Status</option>
+  </select>
+  <input type="text" id="query" name="query">
+  <input type="submit" name="search" value="Search">
+</form>
 <table style="width:100%">
   <tr>
     <th>Id</th>
