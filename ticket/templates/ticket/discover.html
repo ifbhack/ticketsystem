@@ -1,13 +1,18 @@
+<!-- part of the render template functionality - Jinja allows us to use the base.html file as a template to extend off of -Luna -->
 {% extends 'base.html' %}
 
+<!-- Jinja2 code that sets the dynamic header and title -Luna -->
 {% block header %}
   <h1>{% block title %}View Tickets{% endblock %}</h1>
 {% endblock %}
 
+<!-- Jinja2 code that sets the content section: Refer to base.html -Luna -->
+<!-- Am currently unable to actually access this document to work on it, as a ticket needs to be added for this page to open -Luna -->
 {% block content %}
 <h2>Tickets</h2>
 <h3>Search</h3>
 <form method="POST">
+  <!-- Filters made by Josh, unsure if functionality active -Luna -->
   <select name="filters" id="filters">
     <option value="by_title" selected>By Title</option>
     <option value="by_tag">By Tag</option>
@@ -18,12 +23,14 @@
   <input type="submit" name="search" value="Search">
 </form>
 <table style="width:100%">
+  <!-- some form of table, again cannot view properly -Luna -->
   <tr>
     <th>Id</th>
     <th>Title</th>
     <th>Description</th>
     <th>Tag</th>
   </tr>
+  <!-- I think that this searches the tickets in some form. It also would seemingly display them in the table formed above -Luna -->
   {% for ticket in tickets %}
     <tr>
       <th>{{ ticket.ticket_id }}</th>
@@ -34,3 +41,7 @@
   {% endfor %}
 </table>
 {% endblock %}
+
+<!-- LUNA'S NOTES
+- Get confirmation from Josh on different comments above: especially Jinja 
+  -Luna -->

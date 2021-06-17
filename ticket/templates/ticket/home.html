@@ -19,7 +19,7 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
       <!-- this anchors the "home" text in the navbar to the link that is not yet built. Will make a homepage -Luna -->
-      <a class="navbar-brand" href="home.html">Home</a>
+      <a class="navbar-brand" href="{{ url_for('ticket.home') }}">Home</a>
       <!-- home is a button that allows the user to press it to go the set link -Luna -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,20 +48,6 @@
   <!-- not sure if this link statement is still required - it controls css but with bootstrap might not be needed, will test soon -Luna -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <!-- container that dynamically fits the web browser -Luna -->
-  <div class="container-fluid">
-    <!-- Pretty sure that this Jinja2 statement is just dynamic header and content from somewhere nead to look soon -Luna -->
-      </ul>
-      </nav>
-      <section class="content">
-        <header>
-          {% block header %}{% endblock %}
-        </header>
-        {% block content %}{% endblock %}
-        <!-- sends a flash message if forms are not filled out -Luna -->
-        {% for message in get_flashed_messages() %}
-        <div class="flash">{{ message }}</div>
-        {% endfor %}
-  </div>
   
 
 <!-- unsure if the second option will ever be needed so am keeping it here just in case -Luna -->

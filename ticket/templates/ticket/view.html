@@ -1,20 +1,36 @@
+<!-- part of the render template functionality - Jinja allows us to use the base.html file as a template to extend off of -Luna -->
 {% extends 'base.html' %}
 
+<!-- Jinja2 code that sets the dynamic header and title -Luna -->
 {% block header %}
   <h1>{% block title %}View Ticket{% endblock %}</h1>
 {% endblock %}
 
+<!-- Jinja2 code that sets the content section: Refer to base.html -Luna -->
+<!-- Am currently unable to actually access this document to work on it, as a ticket needs to be added for this page to open. Therefore all comments about Jinja
+  from here are assumptions, please correct if incorrect. -Luna -->
 {% block content %}
+
+<!-- The header is the tickets title that is posted from ticket.py -Luna -->
 <h2>{{ ticket.title }}</h2>
+
+<!-- Paragraph that shows the ID of the user and what date it was opened -Luna -->
 <p>Created by User {{ ticket.user_id }} on {{ ticket.created_on }}</p>
+
+<!-- Paragraph that simply contains the tag of the ticket -Luna -->
 <p>Tag: {{ ticket.tag }}</p>
+
+<!-- This IF statement refers to the ticket being open or resolved and simply prints a different informative response -Luna -->
 {% if not ticket.is_closed %}
   <p>Ticket has not been resolved</p>
 {% else %}
   <p>Ticket has been resolved</p>
 {% endif %}
+
+<!-- Shows the description of the ticket - assuming this is the main bulk/body of the ticket -Luna -->
 <p>{{ ticket.description }}</p>
 
+<!-- If the ticket isnt closed, then it will show a button to close the ticket -Luna -->
 {% if not ticket.is_closed %}
 <form method="POST" action="{{ url_for("ticket.close", ticket_id=ticket.ticket_id) }}">
   <input type="submit" name="Close Ticket" value="Close Ticket">
@@ -22,6 +38,8 @@
 {% endif %}
 
 <h2>Messages</h2>
+<!-- Sets up a messaging system - I feel like this is very clunky and needs some work. Am going to comment out for now as unsure of how its been
+  implemented and I am unsure if its needed here in this manner -Luna -->
 {% for message in messages %}
   <div id="message_{{ message.message_id }}" class="message">
     <h4>User {{ message.user_id }} send on {{ message.sent_on }}</h4>
@@ -29,6 +47,7 @@
   </div>
 {% endfor %}
 
+<!-- holds the messaging open until the ticket is closed -Luna -->
 {% if not ticket.is_closed %}
   <h2>Send Message</h2>
   <form method="POST" action="{{ url_for("message.send", ticket_id=ticket.ticket_id) }}">
@@ -36,6 +55,8 @@
     <input type="text" id="message_text" name="message_text">
     <input type="submit" name="Send Message" value="Send Message">
   </form>
+  
+<!-- Just shows that the ticket can no longer recieve messages -Luna -->
 {% else %}
   <h2>This ticket is closed and cannot accept anymore messages.</h2>
 {% endif %}

@@ -2,6 +2,11 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 
 bp = Blueprint("ticket", __name__, url_prefix="/ticket")
 
+@bp.route("/home", methods=("GET", "POST"))
+def home():
+    # Just opens the homepage, no complex data -Luna
+    return render_template("ticket/home.html")
+
 @bp.route("/open", methods=("GET", "POST"))
 def open():
     """ open a ticket and redirect the client to another page """
