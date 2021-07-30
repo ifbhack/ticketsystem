@@ -4,6 +4,7 @@ PIP = ./venv/bin/pip
 FLASK = ./venv/bin/flask
 FLASK_VARS = FLASK_APP=ticket FLASK_ENV=development
 
+.MAIN: run
 .PHONY: test run coverage todo
 
 venv/bin/activate: requirements.txt
