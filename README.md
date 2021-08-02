@@ -1,6 +1,6 @@
 # Simple Ticketing System
 
-A simple ticketing system made with flask.
+A simple ticketing system made with flask and the python discord api.
 
 ## Running
 
